@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <dirent.h>
+#include <sys/stat.h>
 
 #define SIZE_FOR_NOW 1024
 
@@ -55,6 +56,9 @@ void listFiles(char *currdir, int flaga, int flagl){
 
     DIR *firstDir;
     struct dirent *firstDirRead;
+    char *name;
+    int mode, num;
+    struct stat sb;
 
     firstDir = opendir(currdir);
 
@@ -63,8 +67,19 @@ void listFiles(char *currdir, int flaga, int flagl){
         /* need to check if a is provided or not 
         */ 
         if (flaga == 0){
-            if (firstDirRead->d_name[0] != '.') {
-                printf("%s\n", firstDirRead->d_name);
+
+            name = firstDirRead->d_name;
+
+            if (name[0] != '.') {
+                
+                num = stat(currdir,&sb);
+                
+                mode = sb.st_mode;
+                
+                printf("name of the file is %s\n", name);
+                
+                printf("the st_mode of %s is %d\n", name, mode);
+                
             } 
         }else{
            printf("%s\n", firstDirRead->d_name); 
