@@ -5,10 +5,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <string.h>
+#include <pwd.h>
+#include <grp.h>
 
 #define SIZE_FOR_NOW 1024
 
@@ -56,8 +60,11 @@ void listFiles(char *currdir, int flaga, int flagl){
 
     DIR *firstDir;
     struct dirent *firstDirRead;
+    struct passwd *userinfo;
+    struct group *groupinfo;
     char *name;
-    int mode, num;
+    char path[SIZE_FOR_NOW], perm[11];
+    int mode;
     struct stat sb;
 
     firstDir = opendir(currdir);
@@ -70,15 +77,45 @@ void listFiles(char *currdir, int flaga, int flagl){
 
             name = firstDirRead->d_name;
 
+            snprintf(path, SIZE_FOR_NOW, "%s%s%s",currdir,"/",name); 
+
             if (name[0] != '.') {
                 
-                num = stat(currdir,&sb);
+                stat(path,&sb);
                 
                 mode = sb.st_mode;
+
+                perm[0]= ((S_ISDIR(mode) != 0) ? 'd': '-');
+
+                perm[1]= (((S_IRUSR & mode) != 0) ? 'r': '-');
+                perm[2]= (((S_IWUSR & mode) != 0) ? 'w': '-');
+                perm[3]= (((S_IXUSR & mode) != 0) ? 'x': '-');
+
+                perm[4]= (((S_IRGRP & mode) != 0) ? 'r': '-');
+                perm[5]= (((S_IWGRP & mode) != 0) ? 'w': '-');
+                perm[6]= (((S_IXGRP & mode) != 0) ? 'x': '-');
+
+                perm[7]= (((S_IROTH & mode) != 0) ? 'r': '-');
+                perm[8]= (((S_IWOTH & mode) != 0) ? 'w': '-');
+                perm[9]= (((S_IXOTH & mode) != 0) ? 'x': '-');
+
+                perm[10] = '\0';
+
+                printf("permissions %s\n",perm);
+
+                printf("# of links %ld\n", sb.st_nlink);
+
+                userinfo = getpwuid(sb.st_uid);
+
+                printf("user name is %s\n", userinfo->pw_name);
+
+                groupinfo = getgrgid(sb.st_gid);
+
+                printf("group name is %s\n", groupinfo->gr_name);
                 
                 printf("name of the file is %s\n", name);
                 
-                printf("the st_mode of %s is %d\n", name, mode);
+                printf("\n"); 
                 
             } 
         }else{
