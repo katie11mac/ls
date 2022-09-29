@@ -97,7 +97,6 @@ void longListing(char *name, char *currdir){
     struct stat sb;
     char path[BUF_SIZE];
 
-   
     snprintf(path, BUF_SIZE, "%s%s%s",currdir,"/",name); 
 
     stat(path,&sb);
@@ -119,29 +118,18 @@ void longListing(char *name, char *currdir){
     perm[9]= (((S_IXOTH & mode) != 0) ? 'x': '-');
 
     perm[10] = '\0';
-
-    printf("%s ",perm);
-
-    printf("%ld ", sb.st_nlink);
-
     userInfo = getpwuid(sb.st_uid);
-
-    printf("%s ", userInfo->pw_name);
-
     groupInfo = getgrgid(sb.st_gid);
-
-    printf("%s ", groupInfo->gr_name);
-
-    printf("%ld ", sb.st_size);
-
     timePointer = localtime(&(sb.st_mtime));
-
     strftime(date, BUF_SIZE, "%b %d %H:%M", timePointer);
 
+    printf("%s ",perm);
+    printf("%ld ", sb.st_nlink);
+    printf("%s ", userInfo->pw_name);
+    printf("%s ", groupInfo->gr_name);
+    printf("%ld ", sb.st_size);
     printf("%s ", date);
-    
     printf("%s ", name);
-    
     printf("\n"); 
 
 
