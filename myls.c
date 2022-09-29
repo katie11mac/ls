@@ -15,7 +15,7 @@
 #include <grp.h>
 #include <time.h>
 
-#define SIZE_FOR_NOW 1024
+#define BUF_SIZE 1024
 
 void listFiles(char *currdir, int flaga, int flagl);
 
@@ -23,31 +23,23 @@ int
 main(int argc, char *argv[])
 {
     char *currdir;
-    char buf[SIZE_FOR_NOW];
+    char buf[BUF_SIZE];
     int opt, flaga, flagl;
 
-    flaga =0;
-    flagl=0;
+    flaga = 0;
+    flagl = 0;
 
     while((opt = getopt(argc, argv, "la")) != -1){
-        
         if (opt == 'a'){
-            flaga=1;
+            flaga = 1;
         }else if(opt == 'l'){
-            flagl=1;
+            flagl = 1;
         }
     }
 
-    currdir = getcwd(buf , SIZE_FOR_NOW); 
+    currdir = getcwd(buf , BUF_SIZE); 
     /* currdir needed to check ofr errors but could be replaced with buff
     */
-
-    printf("the curr directory path is %s\n", currdir);
-    
-    printf("flaga value is %d\n", flaga);
-    printf("flagl value is %d\n", flagl);
-
-    printf("the first argument is %s\n", argv[1]);
     
     listFiles(currdir, flaga, flagl);
 
@@ -59,27 +51,27 @@ main(int argc, char *argv[])
 
 void listFiles(char *currdir, int flaga, int flagl){
 
-    DIR *firstDir;
-    struct dirent *firstDirRead;
-    struct passwd *userinfo;
-    struct group *groupinfo;
-    struct tm *tm;
+    DIR *dirPointer;
+    struct dirent *itemRead;
+    struct passwd *userInfo;
+    struct group *groupInfo;
+    struct tm *timePointer;
     char *name;
-    char path[SIZE_FOR_NOW], perm[11], date[SIZE_FOR_NOW];
+    char path[BUF_SIZE], perm[11], date[BUF_SIZE];
     int mode;
     struct stat sb;
 
-    firstDir = opendir(currdir);
+    dirPointer = opendir(currdir);
 
-    while((firstDirRead = readdir(firstDir))!= NULL){
+    while((itemRead = readdir(dirPointer))!= NULL){
         
         /* need to check if a is provided or not 
         */ 
         if (flaga == 0){
 
-            name = firstDirRead->d_name;
+            name = itemRead->d_name;
 
-            snprintf(path, SIZE_FOR_NOW, "%s%s%s",currdir,"/",name); 
+            snprintf(path, BUF_SIZE, "%s%s%s",currdir,"/",name); 
 
             if (name[0] != '.') {
                 
@@ -103,34 +95,36 @@ void listFiles(char *currdir, int flaga, int flagl){
 
                 perm[10] = '\0';
 
-                printf("permissions %s\n",perm);
+                printf("%s ",perm);
 
-                printf("# of links %ld\n", sb.st_nlink);
+                printf("%ld ", sb.st_nlink);
 
-                userinfo = getpwuid(sb.st_uid);
+                userInfo = getpwuid(sb.st_uid);
 
-                printf("user name is %s\n", userinfo->pw_name);
+                printf("%s ", userInfo->pw_name);
 
-                groupinfo = getgrgid(sb.st_gid);
+                groupInfo = getgrgid(sb.st_gid);
 
-                printf("group name is %s\n", groupinfo->gr_name);
+                printf("%s ", groupInfo->gr_name);
 
-                printf("file size: %ld bytes\n", sb.st_size);
+                printf("%ld ", sb.st_size);
 
-                tm = localtime(&(sb.st_mtime));
+                timePointer = localtime(&(sb.st_mtime));
 
-                strftime(date, SIZE_FOR_NOW, "%b %d %H:%M", tm);
+                strftime(date, BUF_SIZE, "%b %d %H:%M", timePointer);
 
-                printf("file date: %s\n", date);
+                printf("%s ", date);
                 
-                printf("name of the file is %s\n", name);
+                printf("%s ", name);
                 
                 printf("\n"); 
                 
             } 
         }else{
-           printf("%s\n", firstDirRead->d_name); 
+           printf("%s\n", itemRead->d_name); 
         }
     }
 
 }
+
+void longListing(int flagl,)
