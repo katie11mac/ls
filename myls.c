@@ -18,6 +18,7 @@
 #define BUF_SIZE 1024
 
 void listFiles(char *currdir, int flaga, int flagl);
+void longListing(char *name, char *currdir);
 
 int
 main(int argc, char *argv[])
@@ -53,13 +54,7 @@ void listFiles(char *currdir, int flaga, int flagl){
 
     DIR *dirPointer;
     struct dirent *itemRead;
-    struct passwd *userInfo;
-    struct group *groupInfo;
-    struct tm *timePointer;
     char *name;
-    char path[BUF_SIZE], perm[11], date[BUF_SIZE];
-    int mode;
-    struct stat sb;
 
     dirPointer = opendir(currdir);
 
@@ -71,60 +66,83 @@ void listFiles(char *currdir, int flaga, int flagl){
 
             name = itemRead->d_name;
 
-            snprintf(path, BUF_SIZE, "%s%s%s",currdir,"/",name); 
-
             if (name[0] != '.') {
                 
-                stat(path,&sb);
-                
-                mode = sb.st_mode;
-
-                perm[0]= ((S_ISDIR(mode) != 0) ? 'd': '-');
-
-                perm[1]= (((S_IRUSR & mode) != 0) ? 'r': '-');
-                perm[2]= (((S_IWUSR & mode) != 0) ? 'w': '-');
-                perm[3]= (((S_IXUSR & mode) != 0) ? 'x': '-');
-
-                perm[4]= (((S_IRGRP & mode) != 0) ? 'r': '-');
-                perm[5]= (((S_IWGRP & mode) != 0) ? 'w': '-');
-                perm[6]= (((S_IXGRP & mode) != 0) ? 'x': '-');
-
-                perm[7]= (((S_IROTH & mode) != 0) ? 'r': '-');
-                perm[8]= (((S_IWOTH & mode) != 0) ? 'w': '-');
-                perm[9]= (((S_IXOTH & mode) != 0) ? 'x': '-');
-
-                perm[10] = '\0';
-
-                printf("%s ",perm);
-
-                printf("%ld ", sb.st_nlink);
-
-                userInfo = getpwuid(sb.st_uid);
-
-                printf("%s ", userInfo->pw_name);
-
-                groupInfo = getgrgid(sb.st_gid);
-
-                printf("%s ", groupInfo->gr_name);
-
-                printf("%ld ", sb.st_size);
-
-                timePointer = localtime(&(sb.st_mtime));
-
-                strftime(date, BUF_SIZE, "%b %d %H:%M", timePointer);
-
-                printf("%s ", date);
-                
-                printf("%s ", name);
-                
-                printf("\n"); 
+                if(flagl == 1){
+                    longListing(name, currdir);
+                }else{
+                    printf("%s ", itemRead->d_name);  
+                }
                 
             } 
         }else{
-           printf("%s\n", itemRead->d_name); 
+
+            if(flagl == 1){
+                longListing(name, currdir);
+            }else{
+                printf("%s ", itemRead->d_name);
+            } 
         }
     }
 
 }
 
-void longListing(int flagl,)
+void longListing(char *name, char *currdir){
+
+    struct passwd *userInfo;
+    struct group *groupInfo;
+    struct tm *timePointer;
+    char perm[11], date[BUF_SIZE];
+    int mode;
+    struct stat sb;
+    char path[BUF_SIZE];
+
+   
+    snprintf(path, BUF_SIZE, "%s%s%s",currdir,"/",name); 
+
+    stat(path,&sb);
+                
+    mode = sb.st_mode;
+
+    perm[0]= ((S_ISDIR(mode) != 0) ? 'd': '-');
+
+    perm[1]= (((S_IRUSR & mode) != 0) ? 'r': '-');
+    perm[2]= (((S_IWUSR & mode) != 0) ? 'w': '-');
+    perm[3]= (((S_IXUSR & mode) != 0) ? 'x': '-');
+
+    perm[4]= (((S_IRGRP & mode) != 0) ? 'r': '-');
+    perm[5]= (((S_IWGRP & mode) != 0) ? 'w': '-');
+    perm[6]= (((S_IXGRP & mode) != 0) ? 'x': '-');
+
+    perm[7]= (((S_IROTH & mode) != 0) ? 'r': '-');
+    perm[8]= (((S_IWOTH & mode) != 0) ? 'w': '-');
+    perm[9]= (((S_IXOTH & mode) != 0) ? 'x': '-');
+
+    perm[10] = '\0';
+
+    printf("%s ",perm);
+
+    printf("%ld ", sb.st_nlink);
+
+    userInfo = getpwuid(sb.st_uid);
+
+    printf("%s ", userInfo->pw_name);
+
+    groupInfo = getgrgid(sb.st_gid);
+
+    printf("%s ", groupInfo->gr_name);
+
+    printf("%ld ", sb.st_size);
+
+    timePointer = localtime(&(sb.st_mtime));
+
+    strftime(date, BUF_SIZE, "%b %d %H:%M", timePointer);
+
+    printf("%s ", date);
+    
+    printf("%s ", name);
+    
+    printf("\n"); 
+
+
+}
