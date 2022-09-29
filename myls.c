@@ -13,6 +13,7 @@
 #include <string.h>
 #include <pwd.h>
 #include <grp.h>
+#include <time.h>
 
 #define SIZE_FOR_NOW 1024
 
@@ -62,8 +63,9 @@ void listFiles(char *currdir, int flaga, int flagl){
     struct dirent *firstDirRead;
     struct passwd *userinfo;
     struct group *groupinfo;
+    struct tm *tm;
     char *name;
-    char path[SIZE_FOR_NOW], perm[11];
+    char path[SIZE_FOR_NOW], perm[11], date[SIZE_FOR_NOW];
     int mode;
     struct stat sb;
 
@@ -112,6 +114,14 @@ void listFiles(char *currdir, int flaga, int flagl){
                 groupinfo = getgrgid(sb.st_gid);
 
                 printf("group name is %s\n", groupinfo->gr_name);
+
+                printf("file size: %ld bytes\n", sb.st_size);
+
+                tm = localtime(&(sb.st_mtime));
+
+                strftime(date, SIZE_FOR_NOW, "%b %d %H:%M", tm);
+
+                printf("file date: %s\n", date);
                 
                 printf("name of the file is %s\n", name);
                 
