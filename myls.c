@@ -15,21 +15,24 @@
 #include <grp.h>
 #include <time.h>
 #include <errno.h>
+#include <libgen.h>
 
 #define BUF_SIZE 1024
 
-void listFiles(char *currdir, int flaga, int flagl);
-void longListing(char *name, char *currdir);
+void listFilesDirectory(char *currName, int flaga, int flagl);
+void longListing(char *name, char *currName);
+void listFile(char *currName, int flaga, int flagl); 
 
 int
 main(int argc, char *argv[])
 {
-    char *currdir;
+    char *currName;
     char buf[BUF_SIZE];
-    int opt, flaga, flagl;
+    int opt, flaga, flagl, i, flagMulti;
 
     flaga = 0;
     flagl = 0;
+    flagMulti = 0; 
 
     while((opt = getopt(argc, argv, "la")) != -1){
        if(opt == 'a'){
@@ -40,18 +43,32 @@ main(int argc, char *argv[])
     }
 
     if(argc - optind > 1){
-        printf("more than one directory \n");
-    }else if(argc - optind == 1){
-        currdir = argv[optind];
-    }else{
-        currdir = getcwd(buf, BUF_SIZE); 
-        if(currdir == NULL){
+        flagMulti = 1; 
+    }else if(argc - optind == 0){
+        currName = getcwd(buf, BUF_SIZE); 
+        if(currName == NULL){
             perror("getcwd");
             exit(1);
         }
+        listFilesDirectory(currName, flaga, flagl);
     }
     
-    listFiles(currdir, flaga, flagl);
+    for(i = optind; i < argc; i++){
+        if(opendir(argv[i]) == NULL){
+            if(errno == ENOTDIR){
+                listFile(argv[i], flaga, flagl); 
+            }else{
+                printf("%s: No such file or directory\n", argv[i]); 
+            }
+        }else{
+            if(flagMulti == 1) {
+                printf("%s: \n", argv[i]); 
+            }
+            listFilesDirectory(argv[i], flaga, flagl);
+        }
+    }
+
+    
 
     /* delete this later
     */ 
@@ -59,13 +76,59 @@ main(int argc, char *argv[])
     
 }
 
-void listFiles(char *currdir, int flaga, int flagl){
-
+void listFile(char *currName, int flaga, int flagl){
+    char *parentDir; 
     DIR *dirPointer;
     struct dirent *itemRead;
     char *name;
 
-    dirPointer = opendir(currdir);
+    parentDir = dirname(currName); 
+    
+    dirPointer = opendir(parentDir);
+
+    if(dirPointer == NULL){
+        perror("opendir");
+    }
+    
+    errno = 0; 
+
+    while((itemRead = readdir(dirPointer)) != NULL){
+        
+        name = itemRead->d_name;
+
+        if(strcmp(name, currName) == 0){
+            if(flaga == 0){
+                if(name[0] != '.'){
+                    if(flagl == 1){
+                        longListing(name, parentDir);
+                    }else{
+                        printf("%s ", name);  
+                    }
+                } 
+            }else{
+                if(flagl == 1){
+                    longListing(name, parentDir);
+                }else{
+                    printf("%s ", name);
+                } 
+            }
+        }
+    }
+    printf("\n");
+
+    if(errno == 1){
+        exit(2);
+    }
+
+}
+
+void listFilesDirectory(char *currName, int flaga, int flagl){
+
+    DIR *dirPointer;
+    struct dirent *itemRead;
+    char *name;
+    
+    dirPointer = opendir(currName);
 
     if(dirPointer == NULL){
         perror("opendir");
@@ -80,14 +143,14 @@ void listFiles(char *currdir, int flaga, int flagl){
         if(flaga == 0){
             if(name[0] != '.'){
                 if(flagl == 1){
-                    longListing(name, currdir);
+                    longListing(name, currName);
                 }else{
                     printf("%s ", name);  
                 }
             } 
         }else{
             if(flagl == 1){
-                longListing(name, currdir);
+                longListing(name, currName);
             }else{
                 printf("%s ", name);
             } 
@@ -101,7 +164,7 @@ void listFiles(char *currdir, int flaga, int flagl){
 }
 
 
-void longListing(char *name, char *currdir){
+void longListing(char *name, char *currName){
 
     struct passwd *userInfo;
     struct group *groupInfo;
@@ -111,7 +174,7 @@ void longListing(char *name, char *currdir){
     struct stat sb;
     char path[BUF_SIZE];
 
-    snprintf(path, BUF_SIZE, "%s%s%s", currdir, "/", name);
+    snprintf(path, BUF_SIZE, "%s%s%s", currName, "/", name);
     
     if(stat(path, &sb) == -1){
         perror("stat");
@@ -167,6 +230,5 @@ void longListing(char *name, char *currdir){
     
     printf("%ld ", sb.st_size);
     printf("%s ", date);
-    printf("%s ", name);
-    printf("\n"); 
+    printf("%s \n", name);
 }
