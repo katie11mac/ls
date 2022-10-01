@@ -14,6 +14,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <time.h>
+#include <errno.h>
 
 #define BUF_SIZE 1024
 
@@ -31,16 +32,24 @@ main(int argc, char *argv[])
     flagl = 0;
 
     while((opt = getopt(argc, argv, "la")) != -1){
-        if (opt == 'a'){
+       if(opt == 'a'){
             flaga = 1;
-        }else if(opt == 'l'){
+        } else if(opt == 'l'){
             flagl = 1;
         }
     }
 
-    currdir = getcwd(buf , BUF_SIZE); 
-    /* currdir needed to check ofr errors but could be replaced with buff
-    */
+    if(argc - optind > 1){
+        printf("more than one directory \n");
+    }else if(argc - optind == 1){
+        currdir = argv[optind];
+    }else{
+        currdir = getcwd(buf, BUF_SIZE); 
+        if(currdir == NULL){
+            perror("getcwd");
+            exit(1);
+        }
+    }
     
     listFiles(currdir, flaga, flagl);
 
@@ -58,34 +67,39 @@ void listFiles(char *currdir, int flaga, int flagl){
 
     dirPointer = opendir(currdir);
 
-    while((itemRead = readdir(dirPointer))!= NULL){
+    if(dirPointer == NULL){
+        perror("opendir");
+    }
+    
+    errno = 0; 
+
+    while((itemRead = readdir(dirPointer)) != NULL){
         
-        /* need to check if a is provided or not 
-        */ 
-        if (flaga == 0){
+        name = itemRead->d_name;
 
-            name = itemRead->d_name;
-
-            if (name[0] != '.') {
-                
+        if(flaga == 0){
+            if(name[0] != '.'){
                 if(flagl == 1){
                     longListing(name, currdir);
                 }else{
-                    printf("%s ", itemRead->d_name);  
+                    printf("%s ", name);  
                 }
-                
             } 
         }else{
-
             if(flagl == 1){
                 longListing(name, currdir);
             }else{
-                printf("%s ", itemRead->d_name);
+                printf("%s ", name);
             } 
         }
     }
+    printf("\n");
 
+    if(errno == 1){
+        exit(2);
+    }
 }
+
 
 void longListing(char *name, char *currdir){
 
@@ -97,9 +111,11 @@ void longListing(char *name, char *currdir){
     struct stat sb;
     char path[BUF_SIZE];
 
-    snprintf(path, BUF_SIZE, "%s%s%s",currdir,"/",name); 
-
-    stat(path,&sb);
+    snprintf(path, BUF_SIZE, "%s%s%s", currdir, "/", name);
+    
+    if(stat(path, &sb) == -1){
+        perror("stat");
+    }
                 
     mode = sb.st_mode;
 
@@ -118,19 +134,39 @@ void longListing(char *name, char *currdir){
     perm[9]= (((S_IXOTH & mode) != 0) ? 'x': '-');
 
     perm[10] = '\0';
+
     userInfo = getpwuid(sb.st_uid);
     groupInfo = getgrgid(sb.st_gid);
     timePointer = localtime(&(sb.st_mtime));
-    strftime(date, BUF_SIZE, "%b %d %H:%M", timePointer);
 
-    printf("%s ",perm);
+    if(timePointer == NULL){
+        printf("localtime encountered an error\n");
+        exit(8);
+    }
+    
+    if(strftime(date, BUF_SIZE, "%b %d %H:%M", timePointer) == 0){
+        printf("strftime encountered an error\n");
+    }
+
+    printf("%s ", perm);
     printf("%ld ", sb.st_nlink);
-    printf("%s ", userInfo->pw_name);
-    printf("%s ", groupInfo->gr_name);
+
+    if(userInfo == NULL){
+        perror("getpwuid");
+        printf("%d ", sb.st_uid);
+    }else{
+        printf("%s ", userInfo->pw_name);
+    }
+
+    if(groupInfo == NULL){
+        perror("getgrgid");
+        printf("%d ", sb.st_gid);
+    }else{
+        printf("%s ", groupInfo->gr_name);
+    }
+    
     printf("%ld ", sb.st_size);
     printf("%s ", date);
     printf("%s ", name);
     printf("\n"); 
-
-
 }
