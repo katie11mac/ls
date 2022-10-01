@@ -1,6 +1,7 @@
 /*
  * myls.c
- *
+ * 
+ * Lindsey Schweizter and Katie Macalintal 
  */
 
 #include <stdio.h>
@@ -27,9 +28,7 @@ long counterCheck(long currCount, long size);
 long lenOfInt(int num); 
 long lenOfLong(long num); 
 
-int
-main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]){
     char *currName;
     char buf[BUF_SIZE];
     int opt, flaga, flagl, i, flagMulti;
@@ -41,7 +40,7 @@ main(int argc, char *argv[])
     while((opt = getopt(argc, argv, "la")) != -1){
        if(opt == 'a'){
             flaga = 1;
-        } else if(opt == 'l'){
+        }else if(opt == 'l'){
             flagl = 1;
         }
     }
@@ -65,19 +64,16 @@ main(int argc, char *argv[])
                 printf("%s: No such file or directory\n", argv[i]); 
             }
         }else{
-            if(flagMulti == 1) {
+            if(flagMulti == 1){
                 printf("%s: \n", argv[i]); 
             }
             listFilesDirectory(argv[i], flaga, flagl);
         }
     }
 
-    
-
     /* delete this later
     */ 
     return 0;
-    
 }
 
 void listFile(char *currName, int flaga, int flagl){
@@ -229,7 +225,6 @@ void longListing(char *name, char *currName){
 
     if(userInfo == NULL){
         perror("getpwuid");
-
         charCounter = counterCheck(charCounter, lenOfInt(sb.st_uid)); 
         printf("%d ", sb.st_uid);
     }else{
@@ -256,7 +251,7 @@ void longListing(char *name, char *currName){
     printf("%s \n", name);
 }
 
-long counterCheck(long currCount, long size) {
+long counterCheck(long currCount, long size){
     /* Adding 1 for each space */
     currCount = currCount + 1 + size;
     printf("CURRENT CHAR COUNTER: %ld ", currCount); 
