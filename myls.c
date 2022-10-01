@@ -17,11 +17,15 @@
 #include <errno.h>
 #include <libgen.h>
 
+
 #define BUF_SIZE 1024
 
 void listFilesDirectory(char *currName, int flaga, int flagl);
 void longListing(char *name, char *currName);
 void listFile(char *currName, int flaga, int flagl); 
+long counterCheck(long currCount, long size); 
+long lenOfInt(int num); 
+long lenOfLong(long num); 
 
 int
 main(int argc, char *argv[])
@@ -127,7 +131,9 @@ void listFilesDirectory(char *currName, int flaga, int flagl){
     DIR *dirPointer;
     struct dirent *itemRead;
     char *name;
-    
+    long charCounter; 
+
+    charCounter = 0; 
     dirPointer = opendir(currName);
 
     if(dirPointer == NULL){
@@ -145,6 +151,7 @@ void listFilesDirectory(char *currName, int flaga, int flagl){
                 if(flagl == 1){
                     longListing(name, currName);
                 }else{
+                    charCounter = counterCheck(charCounter, strlen(name)); 
                     printf("%s ", name);  
                 }
             } 
@@ -152,6 +159,7 @@ void listFilesDirectory(char *currName, int flaga, int flagl){
             if(flagl == 1){
                 longListing(name, currName);
             }else{
+                charCounter = counterCheck(charCounter, strlen(name)); 
                 printf("%s ", name);
             } 
         }
@@ -169,10 +177,12 @@ void longListing(char *name, char *currName){
     struct passwd *userInfo;
     struct group *groupInfo;
     struct tm *timePointer;
-    char perm[11], date[BUF_SIZE];
+    char perm[11], date[14];
     int mode;
     struct stat sb;
     char path[BUF_SIZE];
+    int charCounter; 
+
 
     snprintf(path, BUF_SIZE, "%s%s%s", currName, "/", name);
     
@@ -212,23 +222,72 @@ void longListing(char *name, char *currName){
     }
 
     printf("%s ", perm);
+    charCounter = sizeof(perm); 
+
+    charCounter = counterCheck(charCounter, lenOfLong(sb.st_nlink)); 
     printf("%ld ", sb.st_nlink);
 
     if(userInfo == NULL){
         perror("getpwuid");
+
+        charCounter = counterCheck(charCounter, lenOfInt(sb.st_uid)); 
         printf("%d ", sb.st_uid);
     }else{
+        charCounter = counterCheck(charCounter, strlen(userInfo->pw_name));
         printf("%s ", userInfo->pw_name);
     }
 
     if(groupInfo == NULL){
         perror("getgrgid");
+        charCounter = counterCheck(charCounter, lenOfInt(sb.st_gid)); 
         printf("%d ", sb.st_gid);
     }else{
+        charCounter = counterCheck(charCounter, strlen(groupInfo->gr_name));
         printf("%s ", groupInfo->gr_name);
     }
     
+    charCounter = counterCheck(charCounter, lenOfLong(sb.st_size)); 
     printf("%ld ", sb.st_size);
+
+    charCounter = counterCheck(charCounter, sizeof(date));
     printf("%s ", date);
+
+    charCounter = counterCheck(charCounter, strlen(name));
     printf("%s \n", name);
 }
+
+long counterCheck(long currCount, long size) {
+    /* Adding 1 for each space */
+    currCount = currCount + 1 + size;
+    printf("CURRENT CHAR COUNTER: %ld ", currCount); 
+    if(currCount >= 80){
+        printf("\n"); 
+        return size; 
+    }else{
+        return currCount; 
+    }
+}
+
+
+long lenOfInt(int num){
+    long len = 0;
+
+    while (num != 0){
+        len++;
+        num /= 10;
+    }
+    
+    return len;
+}
+
+long lenOfLong(long num){
+    long len = 0;
+
+    while (num != 0){
+        len++;
+        num /= 10;
+    }
+    
+    return len;
+}
+
