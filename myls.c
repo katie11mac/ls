@@ -1,7 +1,9 @@
 /*
  * myls.c
  * 
- * Lindsey Schweizter and Katie Macalintal 
+ * Implements ls with the -a -l option functionality.  
+ *
+ * Authors: Lindsey Schweizter and Katie Macalintal 
  */
 
 #include <stdio.h>
