@@ -3,7 +3,6 @@
  * 
  * Implements ls with the -a -l option functionality.  
  *
- * Authors: Lindsey Schweizter and Katie Macalintal 
  */
 
 #include <stdio.h>
@@ -23,9 +22,9 @@
 
 #define BUF_SIZE 1024
 
+void listFile(char *currName, int flaga, int flagl); 
 void listFilesDirectory(char *currName, int flaga, int flagl);
 void longListing(char *name, char *currName);
-void listFile(char *currName, int flaga, int flagl); 
 long counterCheck(long currCount, long size); 
 long lenOfInt(int num); 
 long lenOfLong(long num); 
@@ -72,12 +71,14 @@ int main(int argc, char *argv[]){
             listFilesDirectory(argv[i], flaga, flagl);
         }
     }
-
-    /* delete this later
-    */ 
-    return 0;
+    
+    return 0; 
 }
 
+/*
+* listFile()
+* Print out the file information when a file is provided as an argument
+*/
 void listFile(char *currName, int flaga, int flagl){
     char *parentDir; 
     DIR *dirPointer;
@@ -85,7 +86,6 @@ void listFile(char *currName, int flaga, int flagl){
     char *name;
 
     parentDir = dirname(currName); 
-    
     dirPointer = opendir(parentDir);
 
     if(dirPointer == NULL){
@@ -124,8 +124,11 @@ void listFile(char *currName, int flaga, int flagl){
 
 }
 
+/*
+* listFilesDirectory() 
+* Print out the relevant information on all the items in a directory 
+*/
 void listFilesDirectory(char *currName, int flaga, int flagl){
-
     DIR *dirPointer;
     struct dirent *itemRead;
     char *name;
@@ -169,9 +172,11 @@ void listFilesDirectory(char *currName, int flaga, int flagl){
     }
 }
 
-
+/*
+* longListing 
+* Print out the extra details associated with the -l option of ls for an item 
+*/
 void longListing(char *name, char *currName){
-
     struct passwd *userInfo;
     struct group *groupInfo;
     struct tm *timePointer;
@@ -180,7 +185,6 @@ void longListing(char *name, char *currName){
     struct stat sb;
     char path[BUF_SIZE];
     int charCounter; 
-
 
     snprintf(path, BUF_SIZE, "%s%s%s", currName, "/", name);
     
@@ -253,10 +257,13 @@ void longListing(char *name, char *currName){
     printf("%s \n", name);
 }
 
+/*
+* counterCheck
+* Keep count of the number of columns occupied by printed items 
+*/
 long counterCheck(long currCount, long size){
     /* Adding 1 for each space */
     currCount = currCount + 1 + size;
-    printf("CURRENT CHAR COUNTER: %ld ", currCount); 
     if(currCount >= 80){
         printf("\n"); 
         return size; 
@@ -265,7 +272,10 @@ long counterCheck(long currCount, long size){
     }
 }
 
-
+/*
+* lenOfInt
+* Calculate and return the number of characters an integer is 
+*/
 long lenOfInt(int num){
     long len = 0;
 
@@ -277,6 +287,10 @@ long lenOfInt(int num){
     return len;
 }
 
+/*
+* lenOfInt
+* Calculate and return the number of characters a long is
+*/
 long lenOfLong(long num){
     long len = 0;
 
