@@ -194,19 +194,19 @@ void longListing(char *name, char *currName){
                 
     mode = sb.st_mode;
 
-    perm[0]= ((S_ISDIR(mode) != 0) ? 'd': '-');
+    perm[0] = ((S_ISDIR(mode) != 0) ? 'd': '-');
 
-    perm[1]= (((S_IRUSR & mode) != 0) ? 'r': '-');
-    perm[2]= (((S_IWUSR & mode) != 0) ? 'w': '-');
-    perm[3]= (((S_IXUSR & mode) != 0) ? 'x': '-');
+    perm[1] = (((S_IRUSR & mode) != 0) ? 'r': '-');
+    perm[2] = (((S_IWUSR & mode) != 0) ? 'w': '-');
+    perm[3] = (((S_IXUSR & mode) != 0) ? 'x': '-');
 
-    perm[4]= (((S_IRGRP & mode) != 0) ? 'r': '-');
-    perm[5]= (((S_IWGRP & mode) != 0) ? 'w': '-');
-    perm[6]= (((S_IXGRP & mode) != 0) ? 'x': '-');
+    perm[4] = (((S_IRGRP & mode) != 0) ? 'r': '-');
+    perm[5] = (((S_IWGRP & mode) != 0) ? 'w': '-');
+    perm[6] = (((S_IXGRP & mode) != 0) ? 'x': '-');
 
-    perm[7]= (((S_IROTH & mode) != 0) ? 'r': '-');
-    perm[8]= (((S_IWOTH & mode) != 0) ? 'w': '-');
-    perm[9]= (((S_IXOTH & mode) != 0) ? 'x': '-');
+    perm[7] = (((S_IROTH & mode) != 0) ? 'r': '-');
+    perm[8] = (((S_IWOTH & mode) != 0) ? 'w': '-');
+    perm[9] = (((S_IXOTH & mode) != 0) ? 'x': '-');
 
     perm[10] = '\0';
 
