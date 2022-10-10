@@ -43,6 +43,8 @@ int main(int argc, char *argv[]){
             showHiddenFiles = 1;
         }else if(opt == 'l'){
             isLongListing = 1;
+        }else{
+            exit(0); 
         }
     }
 
@@ -190,6 +192,7 @@ void longListing(char *name, char *currName){
     
     if(stat(path, &sb) == -1){
         perror("stat");
+        exit(3); 
     }
                 
     mode = sb.st_mode;
