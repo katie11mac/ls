@@ -32,11 +32,11 @@ long lenOfLong(long num);
 int main(int argc, char *argv[]){
     char *currName;
     char buf[BUF_SIZE];
-    int opt, showHiddenFiles, isLongListing, i, flagMulti;
+    int opt, showHiddenFiles, isLongListing, i, gaveMultiFiles;
 
     showHiddenFiles = 0;
     isLongListing = 0;
-    flagMulti = 0; 
+    gaveMultiFiles = 0; 
 
     while((opt = getopt(argc, argv, "la")) != -1){
        if(opt == 'a'){
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]){
     }
 
     if(argc - optind > 1){
-        flagMulti = 1; 
+        gaveMultiFiles = 1; 
     }else if(argc - optind == 0){
         currName = getcwd(buf, BUF_SIZE); 
         if(currName == NULL){
@@ -65,7 +65,7 @@ int main(int argc, char *argv[]){
                 printf("%s: No such file or directory\n", argv[i]); 
             }
         }else{
-            if(flagMulti == 1){
+            if(gaveMultiFiles == 1){
                 printf("%s: \n", argv[i]); 
             }
             listFilesDirectory(argv[i], showHiddenFiles, isLongListing);
