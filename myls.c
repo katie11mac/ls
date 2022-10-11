@@ -248,9 +248,8 @@ void longListing(char *name, char *currName){
         printf("localtime encountered an error\n");
         exit(8);
     }
-    if(strftime(date, BUF_SIZE, "%b %d %H:%M", timePointer) == 0){
-        printf("strftime encountered an error\n");
-    }
+    
+    strftime(date, BUF_SIZE, "%b %d %H:%M", timePointer);
 
     charCounter = counterCheck(charCounter, sizeof(date));
     printf("%s ", date);
