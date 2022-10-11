@@ -224,7 +224,6 @@ void longListing(char *name, char *currName){
 
     userInfo = getpwuid(sb.st_uid);
     if(userInfo == NULL){
-        perror("getpwuid");
         charCounter = counterCheck(charCounter, lenOfInt(sb.st_uid)); 
         printf("%d ", sb.st_uid);
     }else{
@@ -234,7 +233,6 @@ void longListing(char *name, char *currName){
 
     groupInfo = getgrgid(sb.st_gid);
     if(groupInfo == NULL){
-        perror("getgrgid");
         charCounter = counterCheck(charCounter, lenOfInt(sb.st_gid)); 
         printf("%d ", sb.st_gid);
     }else{
