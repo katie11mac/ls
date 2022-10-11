@@ -216,25 +216,13 @@ void longListing(char *name, char *currName){
 
     perm[10] = '\0';
 
-    userInfo = getpwuid(sb.st_uid);
-    groupInfo = getgrgid(sb.st_gid);
-    timePointer = localtime(&(sb.st_mtime));
-
-    if(timePointer == NULL){
-        printf("localtime encountered an error\n");
-        exit(8);
-    }
-    
-    if(strftime(date, BUF_SIZE, "%b %d %H:%M", timePointer) == 0){
-        printf("strftime encountered an error\n");
-    }
-
     printf("%s ", perm);
     charCounter = sizeof(perm); 
 
     charCounter = counterCheck(charCounter, lenOfLong(sb.st_nlink)); 
     printf("%ld ", sb.st_nlink);
 
+    userInfo = getpwuid(sb.st_uid);
     if(userInfo == NULL){
         perror("getpwuid");
         charCounter = counterCheck(charCounter, lenOfInt(sb.st_uid)); 
@@ -244,6 +232,7 @@ void longListing(char *name, char *currName){
         printf("%s ", userInfo->pw_name);
     }
 
+    groupInfo = getgrgid(sb.st_gid);
     if(groupInfo == NULL){
         perror("getgrgid");
         charCounter = counterCheck(charCounter, lenOfInt(sb.st_gid)); 
@@ -255,6 +244,15 @@ void longListing(char *name, char *currName){
     
     charCounter = counterCheck(charCounter, lenOfLong(sb.st_size)); 
     printf("%ld ", sb.st_size);
+
+    timePointer = localtime(&(sb.st_mtime));
+    if(timePointer == NULL){
+        printf("localtime encountered an error\n");
+        exit(8);
+    }
+    if(strftime(date, BUF_SIZE, "%b %d %H:%M", timePointer) == 0){
+        printf("strftime encountered an error\n");
+    }
 
     charCounter = counterCheck(charCounter, sizeof(date));
     printf("%s ", date);
