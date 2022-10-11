@@ -39,12 +39,15 @@ int main(int argc, char *argv[]){
     gaveMultiFiles = 0; 
 
     while((opt = getopt(argc, argv, "la")) != -1){
-       if(opt == 'a'){
-            showHiddenFiles = 1;
-        }else if(opt == 'l'){
-            isLongListing = 1;
-        }else{
-            exit(0); 
+        switch(opt){
+            case 'a': 
+                showHiddenFiles = 1;
+                break;
+            case 'l':
+                isLongListing = 1;
+                break;
+            default:
+                exit(0); 
         }
     }
 
