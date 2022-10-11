@@ -27,7 +27,7 @@ void listFilesDirectory(char *currName, int showHiddenFiles, int isLongListing);
 void longListing(char *name, char *currName);
 long counterCheck(long currCount, long size); 
 
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[]) {
     char *currName;
     char buf[BUF_SIZE];
     int opt, showHiddenFiles, isLongListing, i, gaveMultiFiles;
@@ -36,8 +36,8 @@ int main(int argc, char *argv[]){
     isLongListing = 0;
     gaveMultiFiles = 0; 
 
-    while((opt = getopt(argc, argv, "la")) != -1){
-        switch(opt){
+    while((opt = getopt(argc, argv, "la")) != -1) {
+        switch(opt) {
             case 'a': 
                 showHiddenFiles = 1;
                 break;
@@ -49,26 +49,26 @@ int main(int argc, char *argv[]){
         }
     }
 
-    if(argc - optind > 1){
+    if(argc - optind > 1) {
         gaveMultiFiles = 1; 
-    }else if(argc - optind == 0){
+    } else if(argc - optind == 0) {
         currName = getcwd(buf, BUF_SIZE); 
-        if(currName == NULL){
+        if(currName == NULL) {
             perror("getcwd");
             exit(1);
         }
         listFilesDirectory(currName, showHiddenFiles, isLongListing);
     }
     
-    for(i = optind; i < argc; i++){
-        if(opendir(argv[i]) == NULL){
-            if(errno == ENOTDIR){
+    for(i = optind; i < argc; i++) {
+        if(opendir(argv[i]) == NULL) {
+            if(errno == ENOTDIR) {
                 listFile(argv[i], showHiddenFiles, isLongListing); 
-            }else{
+            } else {
                 printf("%s: No such file or directory\n", argv[i]); 
             }
-        }else{
-            if(gaveMultiFiles == 1){
+        } else {
+            if(gaveMultiFiles == 1) {
                 printf("%s: \n", argv[i]); 
             }
             listFilesDirectory(argv[i], showHiddenFiles, isLongListing);
@@ -82,7 +82,7 @@ int main(int argc, char *argv[]){
 * listFile()
 * Print out the file information when a file is provided as an argument
 */
-void listFile(char *currName, int showHiddenFiles, int isLongListing){
+void listFile(char *currName, int showHiddenFiles, int isLongListing) {
     char *parentDir; 
     DIR *dirPointer;
     struct dirent *itemRead;
@@ -91,29 +91,29 @@ void listFile(char *currName, int showHiddenFiles, int isLongListing){
     parentDir = dirname(currName); 
     dirPointer = opendir(parentDir);
 
-    if(dirPointer == NULL){
+    if(dirPointer == NULL) {
         perror("opendir");
     }
     
     errno = 0; 
 
-    while((itemRead = readdir(dirPointer)) != NULL){
+    while((itemRead = readdir(dirPointer)) != NULL) {
         
         name = itemRead->d_name;
 
-        if(strcmp(name, currName) == 0){
-            if(showHiddenFiles == 0){
-                if(name[0] != '.'){
-                    if(isLongListing == 1){
+        if(strcmp(name, currName) == 0) {
+            if(showHiddenFiles == 0) {
+                if(name[0] != '.') {
+                    if(isLongListing == 1) {
                         longListing(name, parentDir);
-                    }else{
+                    } else {
                         printf("%s ", name);  
                     }
                 } 
-            }else{
-                if(isLongListing == 1){
+            } else {
+                if(isLongListing == 1) {
                     longListing(name, parentDir);
-                }else{
+                } else {
                     printf("%s ", name);
                 } 
             }
@@ -121,7 +121,7 @@ void listFile(char *currName, int showHiddenFiles, int isLongListing){
     }
     printf("\n");
 
-    if(errno == 1){
+    if(errno == 1) {
         exit(2);
     }
 
@@ -131,7 +131,7 @@ void listFile(char *currName, int showHiddenFiles, int isLongListing){
 * listFilesDirectory() 
 * Print out the relevant information on all the items in a directory 
 */
-void listFilesDirectory(char *currName, int showHiddenFiles, int isLongListing){
+void listFilesDirectory(char *currName, int showHiddenFiles, int isLongListing) {
     DIR *dirPointer;
     struct dirent *itemRead;
     char *name;
@@ -140,29 +140,29 @@ void listFilesDirectory(char *currName, int showHiddenFiles, int isLongListing){
     charCounter = 0; 
     dirPointer = opendir(currName);
 
-    if(dirPointer == NULL){
+    if(dirPointer == NULL) {
         perror("opendir");
     }
     
     errno = 0; 
 
-    while((itemRead = readdir(dirPointer)) != NULL){
+    while((itemRead = readdir(dirPointer)) != NULL) {
         
         name = itemRead->d_name;
 
-        if(showHiddenFiles == 0){
-            if(name[0] != '.'){
-                if(isLongListing == 1){
+        if(showHiddenFiles == 0) {
+            if(name[0] != '.') {
+                if(isLongListing == 1) {
                     longListing(name, currName);
-                }else{
+                } else {
                     charCounter = counterCheck(charCounter, strlen(name)); 
                     printf("%s ", name);  
                 }
             } 
-        }else{
-            if(isLongListing == 1){
+        } else {
+            if(isLongListing == 1) {
                 longListing(name, currName);
-            }else{
+            } else {
                 charCounter = counterCheck(charCounter, strlen(name)); 
                 printf("%s ", name);
             } 
@@ -170,7 +170,7 @@ void listFilesDirectory(char *currName, int showHiddenFiles, int isLongListing){
     }
     printf("\n");
 
-    if(errno == 1){
+    if(errno == 1) {
         exit(2);
     }
 }
@@ -179,7 +179,7 @@ void listFilesDirectory(char *currName, int showHiddenFiles, int isLongListing){
 * longListing 
 * Print out the extra details associated with the -l option of ls for an item 
 */
-void longListing(char *name, char *currName){
+void longListing(char *name, char *currName) {
     struct passwd *userInfo;
     struct group *groupInfo;
     struct tm *timePointer;
@@ -190,7 +190,7 @@ void longListing(char *name, char *currName){
 
     snprintf(path, BUF_SIZE, "%s%s%s", currName, "/", name);
     
-    if(stat(path, &sb) == -1){
+    if(stat(path, &sb) == -1) {
         perror("stat");
         exit(3); 
     }
@@ -218,23 +218,23 @@ void longListing(char *name, char *currName){
     printf("%ld ", sb.st_nlink);
 
     userInfo = getpwuid(sb.st_uid);
-    if(userInfo == NULL){
+    if(userInfo == NULL) {
         printf("%d ", sb.st_uid);
-    }else{
+    } else {
         printf("%s ", userInfo->pw_name);
     }
 
     groupInfo = getgrgid(sb.st_gid);
-    if(groupInfo == NULL){
+    if(groupInfo == NULL) {
         printf("%d ", sb.st_gid);
-    }else{
+    } else {
         printf("%s ", groupInfo->gr_name);
     }
     
     printf("%ld ", sb.st_size);
 
     timePointer = localtime(&(sb.st_mtime));
-    if(timePointer == NULL){
+    if(timePointer == NULL) {
         printf("localtime encountered an error\n");
         exit(8);
     }
@@ -250,13 +250,13 @@ void longListing(char *name, char *currName){
 * counterCheck
 * Keep count of the number of columns occupied by printed items 
 */
-long counterCheck(long currCount, long size){
+long counterCheck(long currCount, long size) {
     /* Adding 1 for each space */
     currCount = currCount + 1 + size;
-    if(currCount >= 80){
+    if(currCount >= 80) {
         printf("\n"); 
         return size; 
-    }else{
+    } else {
         return currCount; 
     }
 }
