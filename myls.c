@@ -26,8 +26,6 @@ void listFile(char *currName, int showHiddenFiles, int isLongListing);
 void listFilesDirectory(char *currName, int showHiddenFiles, int isLongListing);
 void longListing(char *name, char *currName);
 long counterCheck(long currCount, long size); 
-long lenOfInt(int num); 
-long lenOfLong(long num); 
 
 int main(int argc, char *argv[]){
     char *currName;
@@ -189,7 +187,6 @@ void longListing(char *name, char *currName){
     int mode;
     struct stat sb;
     char path[BUF_SIZE];
-    int charCounter; 
 
     snprintf(path, BUF_SIZE, "%s%s%s", currName, "/", name);
     
@@ -217,30 +214,23 @@ void longListing(char *name, char *currName){
     perm[10] = '\0';
 
     printf("%s ", perm);
-    charCounter = sizeof(perm); 
 
-    charCounter = counterCheck(charCounter, lenOfLong(sb.st_nlink)); 
     printf("%ld ", sb.st_nlink);
 
     userInfo = getpwuid(sb.st_uid);
     if(userInfo == NULL){
-        charCounter = counterCheck(charCounter, lenOfInt(sb.st_uid)); 
         printf("%d ", sb.st_uid);
     }else{
-        charCounter = counterCheck(charCounter, strlen(userInfo->pw_name));
         printf("%s ", userInfo->pw_name);
     }
 
     groupInfo = getgrgid(sb.st_gid);
     if(groupInfo == NULL){
-        charCounter = counterCheck(charCounter, lenOfInt(sb.st_gid)); 
         printf("%d ", sb.st_gid);
     }else{
-        charCounter = counterCheck(charCounter, strlen(groupInfo->gr_name));
         printf("%s ", groupInfo->gr_name);
     }
     
-    charCounter = counterCheck(charCounter, lenOfLong(sb.st_size)); 
     printf("%ld ", sb.st_size);
 
     timePointer = localtime(&(sb.st_mtime));
@@ -251,10 +241,8 @@ void longListing(char *name, char *currName){
     
     strftime(date, BUF_SIZE, "%b %d %H:%M", timePointer);
 
-    charCounter = counterCheck(charCounter, sizeof(date));
     printf("%s ", date);
 
-    charCounter = counterCheck(charCounter, strlen(name));
     printf("%s \n", name);
 }
 
@@ -273,33 +261,4 @@ long counterCheck(long currCount, long size){
     }
 }
 
-/*
-* lenOfInt
-* Calculate and return the number of characters an integer is 
-*/
-long lenOfInt(int num){
-    long len = 0;
-
-    while (num != 0){
-        len++;
-        num /= 10;
-    }
-    
-    return len;
-}
-
-/*
-* lenOfInt
-* Calculate and return the number of characters a long is
-*/
-long lenOfLong(long num){
-    long len = 0;
-
-    while (num != 0){
-        len++;
-        num /= 10;
-    }
-    
-    return len;
-}
 
