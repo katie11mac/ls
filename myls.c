@@ -114,11 +114,10 @@ void listFile(char *currName, int showHiddenFiles, int isLongListing) {
             if(showHiddenFiles == 0) {
                 if(name[0] != '.') {
                     if(isLongListing == 1) {
+                        // Need to check here whether to pass only the file name or the entire path name 
                         longListing(name, parentDir);
                     } else {
                         if (strcmp(parentDir, ".") == 0) {
-                            printf("%s ", name);
-                        printf("%s ", name);  
                             printf("%s ", name);
                         } else {
                             printf("%s/%s ", parentDir, name);
@@ -263,7 +262,7 @@ void longListing(char *name, char *currName) {
 
     printf("%s ", date);
 
-    printf("%s \n", name); // NEED TO TEST OUT WHEN IT SHOULD PRINT THE WHOLE PATH AND WHEN IT SHOULDN'T 
+    printf("%s \n", name); 
 }
 
 /*
