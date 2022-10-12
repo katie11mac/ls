@@ -263,7 +263,7 @@ void longListing(char *name, char *currName) {
 
     printf("%s ", date);
 
-    printf("%s \n", name);
+    printf("%s \n", name); // NEED TO TEST OUT WHEN IT SHOULD PRINT THE WHOLE PATH AND WHEN IT SHOULDN'T 
 }
 
 /*
