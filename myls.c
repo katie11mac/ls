@@ -19,7 +19,6 @@
 #include <errno.h>
 #include <libgen.h>
 
-
 #define BUF_SIZE 1024
 
 void listFile(char *currName, int showHiddenFiles, int isLongListing); 
@@ -63,7 +62,6 @@ int main(int argc, char *argv[]) {
     for(i = optind; i < argc; i++) {
         if(opendir(argv[i]) == NULL) {
             if(errno == ENOTDIR) {
-                // printf("argv[i]: %s\n", argv[i]); 
                 listFile(argv[i], showHiddenFiles, isLongListing); 
             } else {
                 printf("%s: No such file or directory\n", argv[i]); 
@@ -91,7 +89,6 @@ void listFile(char *currName, int showHiddenFiles, int isLongListing) {
     int fullPathProvided; 
 
     fullPathProvided = 0; 
-    // printf("currName (before dirname is used): %s\n", currName); 
     base = basename(currName); 
     parentDir = dirname(currName); 
     dirPointer = opendir(parentDir);
@@ -106,21 +103,13 @@ void listFile(char *currName, int showHiddenFiles, int isLongListing) {
     
     errno = 0; 
 
-    // printf("parentDir: %s\n", parentDir); 
-    // printf("base: %s\n", base); 
-    // printf("currName (after dirname is used): %s\n", currName); 
-
-    // should we have a flag to mark whether or not we should print the whole path? 
-    
     while((itemRead = readdir(dirPointer)) != NULL) {
         name = itemRead->d_name;
 
         if(strcmp(name, base) == 0) {
-            // printf("found the file or dir\n"); 
             if(showHiddenFiles == 0) {
                 if(name[0] != '.') {
                     if(isLongListing == 1) {
-                        // Need to check here whether to pass only the file name or the entire path name 
                         longListing(name, parentDir, fullPathProvided);
                     } else {
                         if (fullPathProvided == 0) {
