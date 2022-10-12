@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
                 isLongListing = 1;
                 break;
             default:
-                exit(0); 
+                exit(1); 
         }
     }
 
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
         currName = getcwd(buf, BUF_SIZE); 
         if(currName == NULL) {
             perror("getcwd");
-            exit(1);
+            exit(2);
         }
         listFilesDirectory(currName, showHiddenFiles, isLongListing);
     }
@@ -136,7 +136,7 @@ void listFile(char *currName, int showHiddenFiles, int isLongListing) {
     printf("\n");
 
     if(errno == 1) {
-        exit(2);
+        exit(3);
     }
 
 }
@@ -185,7 +185,7 @@ void listFilesDirectory(char *currName, int showHiddenFiles, int isLongListing) 
     printf("\n");
 
     if(errno == 1) {
-        exit(2);
+        exit(4);
     }
 }
 
@@ -206,7 +206,7 @@ void longListing(char *name, char *currName, int showFullPath) {
     
     if(stat(path, &sb) == -1) {
         perror("stat");
-        exit(3); 
+        exit(5); 
     }
                 
     mode = sb.st_mode;
@@ -250,10 +250,10 @@ void longListing(char *name, char *currName, int showFullPath) {
     timePointer = localtime(&(sb.st_mtime));
     if(timePointer == NULL) {
         printf("localtime encountered an error\n");
-        exit(8);
+        exit(6);
     }
     
-    strftime(date, BUF_SIZE, "%b %d %H:%M", timePointer);
+    strftime(date, BUF_SIZE, "%b %d %H:%M", timePointer); 
 
     printf("%s ", date);
 
