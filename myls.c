@@ -24,7 +24,7 @@
 
 void listFile(char *currName, int showHiddenFiles, int isLongListing); 
 void listFilesDirectory(char *currName, int showHiddenFiles, int isLongListing);
-void longListing(char *name, char *currName);
+void longListing(char *name, char *currName, int showFullPath);
 long counterCheck(long currCount, long size); 
 
 int main(int argc, char *argv[]) {
@@ -75,7 +75,6 @@ int main(int argc, char *argv[]) {
             listFilesDirectory(argv[i], showHiddenFiles, isLongListing);
         }
     }
-    
     return 0; 
 }
 
@@ -89,9 +88,10 @@ void listFile(char *currName, int showHiddenFiles, int isLongListing) {
     DIR *dirPointer;
     struct dirent *itemRead;
     char *name;
+    int fullPathProvided; 
 
+    fullPathProvided = 0; 
     // printf("currName (before dirname is used): %s\n", currName); 
-
     base = basename(currName); 
     parentDir = dirname(currName); 
     dirPointer = opendir(parentDir);
@@ -99,12 +99,18 @@ void listFile(char *currName, int showHiddenFiles, int isLongListing) {
     if(dirPointer == NULL) {
         perror("opendir");
     }
+
+    if (strcmp(parentDir, ".") != 0) {
+        fullPathProvided = 1;
+    } 
     
     errno = 0; 
 
     // printf("parentDir: %s\n", parentDir); 
     // printf("base: %s\n", base); 
     // printf("currName (after dirname is used): %s\n", currName); 
+
+    // should we have a flag to mark whether or not we should print the whole path? 
     
     while((itemRead = readdir(dirPointer)) != NULL) {
         name = itemRead->d_name;
@@ -115,29 +121,29 @@ void listFile(char *currName, int showHiddenFiles, int isLongListing) {
                 if(name[0] != '.') {
                     if(isLongListing == 1) {
                         // Need to check here whether to pass only the file name or the entire path name 
-                        longListing(name, parentDir);
+                        longListing(name, parentDir, fullPathProvided);
                     } else {
-                        if (strcmp(parentDir, ".") == 0) {
+                        if (fullPathProvided == 0) {
                             printf("%s ", name);
                         } else {
                             printf("%s/%s ", parentDir, name);
                         }
-                        
                     }
                 } 
             } else {
                 if(isLongListing == 1) {
-                    longListing(name, parentDir);
+                    longListing(name, parentDir, fullPathProvided);
                 } else {
-                    if (strcmp(parentDir, ".") == 0) {
-                            printf("%s ", name);
-                        } else {
-                            printf("%s/%s ", parentDir, name);
-                        }
+                    if (fullPathProvided == 0) {
+                        printf("%s ", name);
+                    } else {
+                        printf("%s/%s ", parentDir, name);
+                    }
                 } 
             }
         }
     }
+
     printf("\n");
 
     if(errno == 1) {
@@ -172,7 +178,7 @@ void listFilesDirectory(char *currName, int showHiddenFiles, int isLongListing) 
         if(showHiddenFiles == 0) {
             if(name[0] != '.') {
                 if(isLongListing == 1) {
-                    longListing(name, currName);
+                    longListing(name, currName, 0);
                 } else {
                     charCounter = counterCheck(charCounter, strlen(name)); 
                     printf("%s ", name);  
@@ -180,7 +186,7 @@ void listFilesDirectory(char *currName, int showHiddenFiles, int isLongListing) 
             } 
         } else {
             if(isLongListing == 1) {
-                longListing(name, currName);
+                longListing(name, currName, 0);
             } else {
                 charCounter = counterCheck(charCounter, strlen(name)); 
                 printf("%s ", name);
@@ -198,7 +204,7 @@ void listFilesDirectory(char *currName, int showHiddenFiles, int isLongListing) 
 * longListing 
 * Print out the extra details associated with the -l option of ls for an item 
 */
-void longListing(char *name, char *currName) {
+void longListing(char *name, char *currName, int showFullPath) {
     struct passwd *userInfo;
     struct group *groupInfo;
     struct tm *timePointer;
@@ -262,7 +268,11 @@ void longListing(char *name, char *currName) {
 
     printf("%s ", date);
 
-    printf("%s \n", name); 
+    if (showFullPath == 0) {
+        printf("%s\n", name);
+    } else {
+        printf("%s\n", path);
+    }
 }
 
 /*
