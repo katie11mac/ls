@@ -63,6 +63,7 @@ int main(int argc, char *argv[]) {
     for(i = optind; i < argc; i++) {
         if(opendir(argv[i]) == NULL) {
             if(errno == ENOTDIR) {
+                // printf("argv[i]: %s\n", argv[i]); 
                 listFile(argv[i], showHiddenFiles, isLongListing); 
             } else {
                 printf("%s: No such file or directory\n", argv[i]); 
@@ -84,10 +85,14 @@ int main(int argc, char *argv[]) {
 */
 void listFile(char *currName, int showHiddenFiles, int isLongListing) {
     char *parentDir; 
+    char *base; 
     DIR *dirPointer;
     struct dirent *itemRead;
     char *name;
 
+    // printf("currName (before dirname is used): %s\n", currName); 
+
+    base = basename(currName); 
     parentDir = dirname(currName); 
     dirPointer = opendir(parentDir);
 
@@ -97,24 +102,39 @@ void listFile(char *currName, int showHiddenFiles, int isLongListing) {
     
     errno = 0; 
 
+    // printf("parentDir: %s\n", parentDir); 
+    // printf("base: %s\n", base); 
+    // printf("currName (after dirname is used): %s\n", currName); 
+    
     while((itemRead = readdir(dirPointer)) != NULL) {
-        
         name = itemRead->d_name;
 
-        if(strcmp(name, currName) == 0) {
+        if(strcmp(name, base) == 0) {
+            // printf("found the file or dir\n"); 
             if(showHiddenFiles == 0) {
                 if(name[0] != '.') {
                     if(isLongListing == 1) {
                         longListing(name, parentDir);
                     } else {
+                        if (strcmp(parentDir, ".") == 0) {
+                            printf("%s ", name);
                         printf("%s ", name);  
+                            printf("%s ", name);
+                        } else {
+                            printf("%s/%s ", parentDir, name);
+                        }
+                        
                     }
                 } 
             } else {
                 if(isLongListing == 1) {
                     longListing(name, parentDir);
                 } else {
-                    printf("%s ", name);
+                    if (strcmp(parentDir, ".") == 0) {
+                            printf("%s ", name);
+                        } else {
+                            printf("%s/%s ", parentDir, name);
+                        }
                 } 
             }
         }
