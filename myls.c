@@ -20,6 +20,7 @@
 #include <libgen.h>
 
 #define BUF_SIZE 1024
+#define MAX_COL_SIZE 80
 
 void listFile(char *currName, int showHiddenFiles, int isLongListing); 
 void listFilesDirectory(char *currName, int showHiddenFiles, int isLongListing);
@@ -271,7 +272,7 @@ void longListing(char *name, char *currName, int showFullPath) {
 long counterCheck(long currCount, long size) {
     /* Adding 1 for each space */
     currCount = currCount + 1 + size;
-    if(currCount >= 80) {
+    if(currCount >= MAX_COL_SIZE) {
         printf("\n"); 
         return size; 
     } else {
