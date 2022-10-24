@@ -60,6 +60,7 @@ int main(int argc, char *argv[]) {
         listFilesDirectory(currName, showHiddenFiles, isLongListing);
     }
     
+    // call stat first and then call long
     for(i = optind; i < argc; i++) {
         if(opendir(argv[i]) == NULL) {
             if(errno == ENOTDIR) {
@@ -89,6 +90,7 @@ void listFile(char *currName, int showHiddenFiles, int isLongListing) {
     char *name;
     int fullPathProvided; 
 
+    //this might be a bug
     fullPathProvided = 0; 
     base = basename(currName); 
     parentDir = dirname(currName); 
@@ -107,9 +109,9 @@ void listFile(char *currName, int showHiddenFiles, int isLongListing) {
     while((itemRead = readdir(dirPointer)) != NULL) {
         name = itemRead->d_name;
 
-        if(strcmp(name, base) == 0) {
+        if(strcmp(name, base) == 0) { //just call stat right away
             if(showHiddenFiles == 0) {
-                if(name[0] != '.') {
+                if(name[0] != '.') { //don't filter out . files
                     if(isLongListing == 1) {
                         longListing(name, parentDir, fullPathProvided);
                     } else {
@@ -205,9 +207,9 @@ void longListing(char *name, char *currName, int showFullPath) {
 
     snprintf(path, BUF_SIZE, "%s%s%s", currName, "/", name);
     
-    if(stat(path, &sb) == -1) {
+    if(stat(path, &sb) == -1) {  
         perror("stat");
-        exit(5); 
+        exit(5); //return -1, instead of exit to indicate exit
     }
                 
     mode = sb.st_mode;
