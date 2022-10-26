@@ -23,18 +23,22 @@
 #define MAX_COL_SIZE 80
 
 void listFile(char *currName, int showHiddenFiles, int isLongListing); 
-void listFilesDirectory(char *currName, int showHiddenFiles, int isLongListing);
+int listFilesDirectory(char *currName, int showHiddenFiles, int isLongListing);
 void longListing(char *name, char *currName, int showFullPath);
 long counterCheck(long currCount, long size); 
 
 int main(int argc, char *argv[]) {
     char *currName;
     char buf[BUF_SIZE];
-    int opt, showHiddenFiles, isLongListing, i, gaveMultiFiles;
+    int showHiddenFiles, isLongListing, gaveMultiFiles;
+    int opt;
+    int i;
+    int minorErrorOccured;
 
     showHiddenFiles = 0;
     isLongListing = 0;
     gaveMultiFiles = 0; 
+    minorErrorOccured = 0;
 
     while((opt = getopt(argc, argv, "la")) != -1) {
         switch(opt) {
@@ -57,25 +61,26 @@ int main(int argc, char *argv[]) {
             perror("getcwd");
             exit(2);
         }
-        listFilesDirectory(currName, showHiddenFiles, isLongListing);
+        minorErrorOccured = listFilesDirectory(currName, showHiddenFiles, isLongListing);
     }
     
-    // call stat first and then call long
+    // NOTE: Assumptions are dangerous (could use stat to be more clear)
     for(i = optind; i < argc; i++) {
         if(opendir(argv[i]) == NULL) {
             if(errno == ENOTDIR) {
-                listFile(argv[i], showHiddenFiles, isLongListing); 
+                listFile(argv[i], showHiddenFiles, isLongListing);
             } else {
-                printf("%s: No such file or directory\n", argv[i]); 
+                perror(argv[i]);
             }
         } else {
             if(gaveMultiFiles == 1) {
-                printf("%s: \n", argv[i]); 
+                printf("\n%s: \n", argv[i]);
             }
-            listFilesDirectory(argv[i], showHiddenFiles, isLongListing);
+            minorErrorOccured = listFilesDirectory(argv[i], showHiddenFiles, isLongListing);
         }
     }
-    return 0; 
+    printf("\n");
+    return minorErrorOccured; //Return a non-zero value if something went wrong, and zero otherwise
 }
 
 /*
@@ -85,70 +90,46 @@ int main(int argc, char *argv[]) {
 void listFile(char *currName, int showHiddenFiles, int isLongListing) {
     char *parentDir; 
     char *base; 
-    DIR *dirPointer;
-    struct dirent *itemRead;
-    char *name;
     int fullPathProvided; 
 
-    //this might be a bug
     fullPathProvided = 0; 
     base = basename(currName); 
     parentDir = dirname(currName); 
-    dirPointer = opendir(parentDir);
-
-    if(dirPointer == NULL) {
-        perror("opendir");
-    }
 
     if (strcmp(parentDir, ".") != 0) {
         fullPathProvided = 1;
     } 
-    
-    errno = 0; 
 
-    while((itemRead = readdir(dirPointer)) != NULL) {
-        name = itemRead->d_name;
-
-        if(strcmp(name, base) == 0) { //just call stat right away
-            if(showHiddenFiles == 0) {
-                if(name[0] != '.') { //don't filter out . files
-                    if(isLongListing == 1) {
-                        longListing(name, parentDir, fullPathProvided);
-                    } else {
-                        if (fullPathProvided == 0) {
-                            printf("%s ", name);
-                        } else {
-                            printf("%s/%s ", parentDir, name);
-                        }
-                    }
-                } 
+    if(showHiddenFiles == 0) {
+        if(base[0] != '.') {
+            if(isLongListing == 1) {
+                longListing(base, parentDir, fullPathProvided);
             } else {
-                if(isLongListing == 1) {
-                    longListing(name, parentDir, fullPathProvided);
+                if (fullPathProvided == 0) {
+                    printf("%s ", base);
                 } else {
-                    if (fullPathProvided == 0) {
-                        printf("%s ", name);
-                    } else {
-                        printf("%s/%s ", parentDir, name);
-                    }
-                } 
+                    printf("%s/%s ", parentDir, base);
+                }
             }
-        }
+        } 
+    } else {
+        if(isLongListing == 1) {
+            longListing(base, parentDir, fullPathProvided);
+        } else {
+            if (fullPathProvided == 0) {
+                printf("%s ", base);
+            } else {
+                printf("%s/%s ", parentDir, base);
+            }
+        } 
     }
-
-    printf("\n");
-
-    if(errno == 1) {
-        exit(3);
-    }
-
 }
 
 /*
 * listFilesDirectory() 
 * Print out the relevant information on all the items in a directory 
 */
-void listFilesDirectory(char *currName, int showHiddenFiles, int isLongListing) {
+int listFilesDirectory(char *currName, int showHiddenFiles, int isLongListing) {
     DIR *dirPointer;
     struct dirent *itemRead;
     char *name;
@@ -175,21 +156,23 @@ void listFilesDirectory(char *currName, int showHiddenFiles, int isLongListing) 
                     charCounter = counterCheck(charCounter, strlen(name)); 
                     printf("%s ", name);  
                 }
-            } 
+            }
         } else {
             if(isLongListing == 1) {
                 longListing(name, currName, 0);
             } else {
                 charCounter = counterCheck(charCounter, strlen(name)); 
                 printf("%s ", name);
-            } 
+            }
         }
+        errno = 0;
     }
-    printf("\n");
-
     if(errno == 1) {
-        exit(4);
+        perror("readdir");
+        return -1;
     }
+
+    return 0;
 }
 
 /*
