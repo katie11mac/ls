@@ -24,7 +24,7 @@
 
 void listFile(char *currName, int showHiddenFiles, int isLongListing); 
 int listFilesDirectory(char *currName, int showHiddenFiles, int isLongListing);
-void longListing(char *name, char *currName, int showFullPath);
+int longListing(char *name, char *currName, int showFullPath);
 long counterCheck(long currCount, long size); 
 
 int main(int argc, char *argv[]) {
@@ -167,7 +167,7 @@ int listFilesDirectory(char *currName, int showHiddenFiles, int isLongListing) {
         }
         errno = 0;
     }
-    if(errno == 1) {
+    if(errno != 0) {
         perror("readdir");
         return -1;
     }
@@ -179,7 +179,7 @@ int listFilesDirectory(char *currName, int showHiddenFiles, int isLongListing) {
 * longListing 
 * Print out the extra details associated with the -l option of ls for an item 
 */
-void longListing(char *name, char *currName, int showFullPath) {
+int longListing(char *name, char *currName, int showFullPath) {
     struct passwd *userInfo;
     struct group *groupInfo;
     struct tm *timePointer;
@@ -192,7 +192,7 @@ void longListing(char *name, char *currName, int showFullPath) {
     
     if(stat(path, &sb) == -1) {  
         perror("stat");
-        exit(5); //return -1, instead of exit to indicate exit
+        return -1;
     }
                 
     mode = sb.st_mode;
@@ -248,6 +248,8 @@ void longListing(char *name, char *currName, int showFullPath) {
     } else {
         printf("%s\n", path);
     }
+
+    return 0; 
 }
 
 /*
